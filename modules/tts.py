@@ -6,6 +6,9 @@ class TTS:
         self.engine = pyttsx3.init()
         self.voices = self.engine.getProperty("voices")
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.engine.stop()
+
     def speak(self, message, language="en"):
         selected_voice = None
         lang = language.lower()
@@ -23,16 +26,9 @@ class TTS:
 
         if selected_voice:
             self.engine.setProperty("voice", selected_voice)
-            print(f"[INFO] Selected voice: {selected_voice} for '{language}'")
+            # print(f"[INFO] Selected voice: {selected_voice} for '{language}'")
         else:
             print(f"[WARN] No voice found for '{language}', using default voice.")
 
         self.engine.say(message)
         self.engine.runAndWait()
-
-
-# Example usage
-if __name__ == "__main__":
-    tts = TTS()
-    tts.speak("", "fr")
-
