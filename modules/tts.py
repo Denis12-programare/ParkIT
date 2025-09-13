@@ -6,12 +6,17 @@ class TTS:
         self.engine = pyttsx3.init()
         self.voices = self.engine.getProperty("voices")
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.engine.stop()
+    # def __exit__(self, exc_type, exc_value, traceback):
+    #     self.engine.stop()
 
     def speak(self, message, language="en"):
         selected_voice = None
         lang = language.lower()
+        try:
+            self.engine.stop()
+            self.engine = pyttsx3.init()
+        except:
+            pass
 
         for voice in self.voices:
             voice_id = voice.id.lower()
@@ -32,3 +37,5 @@ class TTS:
 
         self.engine.say(message)
         self.engine.runAndWait()
+
+        # TTS.__exit__()
