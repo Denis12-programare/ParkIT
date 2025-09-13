@@ -1,7 +1,11 @@
 from sqlite3.dbapi2 import connect
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from config.config import Config
 import requests
 import sqlite3
+from models.payment import Payment
+from database import db
 
 TEMPLATE = """
 User payment status: {}
@@ -19,6 +23,29 @@ User's issue:
 #"""
 
 app = Flask(__name__)
+
+app.config.from_object(Config);
+
+db.init_app(app)
+
+@app.route('/payments', methods=['GET'])
+def findAll():
+    with app.app_context():
+        payments = Payment.query.all()
+    
+    payments_list = [
+        {
+            'id': p.id,
+            'session_id': p.session_id,
+            'station_id': p.station_id,
+            'method': p.method,
+            'amount_cents': p.amount_cents,
+            'approved': p.approved,
+            'created_at': p.created_at.isoformat()
+        } for p in payments
+    ]
+    
+    return jsonify(payments_list)
 
 @app.route('/decision', methods=['POST'])
 def decision():
