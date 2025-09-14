@@ -76,7 +76,7 @@ def upload():
 def qr():
     return render_template('test.html')
 
-@app.route('/get_intent', methods=['POST']) #llm invokation, pe mine igor zaibal. A nu se incurca cu speaker-ul, Igor e llm-ul nostru
+@app.route('/get_intent', methods=['POST'])
 def intent():
     data = request.json
     if data == None:
