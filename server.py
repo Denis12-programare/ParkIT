@@ -5,22 +5,13 @@ from config.config import Config
 import requests
 import sqlite3
 from models.payment import Payment
+from models.intent import Intent
 from database import db
+from dtos.requests.request import request_schema
+from dtos.requests.create_intent_request import create_intent_request_schema
+from marshmallow import ValidationError
 
-TEMPLATE = """
-User payment status: {}
-
-Rules for classification:
-{}
-
-User's issue:
-{}
-"""
-#rules = """
-#- ticket_lost → The user lost their entry ticket.
-#- forgot_pay → The user forgot to pay before reaching the exit. (They may mention forgetting, not realizing they had to pay, or say they don't know what to do.)
-#- not_paid → Only if the user explicitly mentions they already tried to pay (payment attempted, payment failed, card declined, machine error, barrier did not open after trying to pay).
-#"""
+from services.intents_service import IntentsService
 
 app = Flask(__name__)
 
@@ -28,24 +19,40 @@ app.config.from_object(Config);
 
 db.init_app(app)
 
-@app.route('/payments', methods=['GET'])
-def findAll():
-    with app.app_context():
-        payments = Payment.query.all()
-    
-    payments_list = [
-        {
-            'id': p.id,
-            'session_id': p.session_id,
-            'station_id': p.station_id,
-            'method': p.method,
-            'amount_cents': p.amount_cents,
-            'approved': p.approved,
-            'created_at': p.created_at.isoformat()
-        } for p in payments
-    ]
-    
-    return jsonify(payments_list)
+intents_service = IntentsService()
+
+@app.route('/api/v1/operator/handle', methods=['POST'])
+def index():
+    try:
+        data = request_schema.load(request.get_json())
+    except ValidationError as error:
+        return jsonify(error.messages), 400
+
+    req = {
+        "intent": "generated_intent"
+        "ticket_id": data["ticket_id"],
+        "license_plate": data["license_plate"]
+    }
+    print(data)
+
+    return "Succes"
+
+@app.route("/api/v1/intents", methods=['POST'])
+def create():
+    try:
+        data = create_intent_request_schema.load(request.get_json())
+    except ValidationError as error:
+        return jsonify(error.messages), 400
+
+    intent = intents_service.create(data["name"], data["description"])
+
+    result = {
+        "id": intent.id,
+        "name": intent.name,
+        "description": intent.description
+    }
+
+    return jsonify(result), 200
 
 @app.route('/decision', methods=['POST'])
 def decision():
