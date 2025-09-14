@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Camera Capture</title>
+	<style>
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="qrcode"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+	<script>
+		window.onload = () => {
+			var qrcode = new QRCode(document.getElementById("qrcode"), {
+				text: f"http://127.0.0.1:8000/pay.html?{}", // The data to encode
+				width: 256,                 // Width of the QR code in pixels
+				height: 256,                // Height of the QR code in pixels
+				colorDark : "#000000",      // Color of the dark modules
+				colorLight : "#ffffff",     // Color of the light modules
+				correctLevel : QRCode.CorrectLevel.H // Error correction level
+			});
+		}
+	</script>
+</body>
+</html>

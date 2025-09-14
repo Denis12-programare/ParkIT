@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Payment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full text-center">
+    
+    <!-- Title -->
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">Invoice Payment</h1>
+
+    <!-- Amount -->
+    <p class="text-xl font-bold text-indigo-600 mb-6">$120.00</p>
+
+    <!-- Remaining time -->
+    <p class="text-gray-600 mb-6">
+      ⏳ Remaining time: <span class="font-medium text-gray-900">15:00 minutes</span>
+    </p>
+
+    <!-- QR Placeholder -->
+    <div class="flex justify-center mb-6">
+      <div class="w-40 h-40 bg-gray-200 flex items-center justify-center rounded-lg">
+        <span class="text-gray-500 text-sm">QR Code</span>
+      </div>
+    </div>
+
+    <!-- Payment Button -->
+    <a href="https://paypal.com" 
+       class="block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-xl transition">
+      Pay Now
+    </a>
+
+    <!-- Payment Status -->
+    <p class="mt-6 text-gray-700">
+      Status: <span class="font-semibold text-yellow-600">Pending</span>
+    </p>
+  </div>
+</body>
+</html>
+
