@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Capture</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+
+  <div class="bg-white shadow-lg rounded-2xl p-6 max-w-md w-full text-center">
+    <h1 class="text-xl font-semibold text-gray-800 mb-4">Capture Invoice</h1>
+
+    <!-- Video Stream -->
+    <video id="video" autoplay playsinline class="w-full rounded-lg mb-4"></video>
+
+    <!-- Hidden Canvas -->
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <!-- Buttons -->
+    <div id="buttonContainer">
+      <button id="captureBtn" 
+        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-xl transition w-full">
+        Capture & Send
+      </button>
+    </div>
+
+    <!-- Status -->
+    <p id="status" class="mt-4 text-gray-600"></p>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const statusEl = document.getElementById('status');
+    const buttonContainer = document.getElementById('buttonContainer');
+
+    // Start camera stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => { statusEl.textContent = "❌ Camera access denied."; });
+
+    function showConfirmRetake() {
+      buttonContainer.innerHTML = `
+        <div class="flex gap-4">
+          <button id="confirmBtn" 
+            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl transition">
+            Confirm
+          </button>
+          <button id="retakeBtn" 
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-xl transition">
+            Retake
+          </button>
+        </div>
+      `;
+
+      // Hook up new buttons
+      document.getElementById('retakeBtn').addEventListener('click', () => {
+        // Reset UI
+        statusEl.textContent = "";
+        buttonContainer.innerHTML = `
+          <button id="captureBtn" 
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-xl transition w-full">
+            Capture & Send
+          </button>
+        `;
+        document.getElementById('captureBtn').addEventListener('click', captureAndSend);
+      });
+
+      document.getElementById('confirmBtn').addEventListener('click', async() => {
+			await fetch('/', {method: 'POST'});
+      });
+    }
+
+    function captureAndSend() {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('image', blob, 'capture.jpg');
+
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => { 
+          statusEl.textContent = data.plate;
+          showConfirmRetake();
+        })
+        .catch(err => { statusEl.textContent = "❌ Error sending"; });
+      }, 'image/jpeg');
+    }
+
+    captureBtn.addEventListener('click', captureAndSend);
+  </script>
+</body>
+</html>
+
